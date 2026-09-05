@@ -1,13 +1,17 @@
 "use client";
 
-import { usePrivy } from "@privy-io/react-auth";
+import Link from "next/link";
+import {
+  usePrivy,
+  useWallets,
+  getEmbeddedConnectedWallet,
+} from "@privy-io/react-auth";
 
 export default function Home() {
   const { ready, authenticated, user, login, logout } = usePrivy();
+  const { wallets } = useWallets();
 
-  const embeddedWallet = user?.linkedAccounts.find(
-    (account) => account.type === "wallet" && account.walletClientType === "privy"
-  );
+  const embeddedWallet = getEmbeddedConnectedWallet(wallets);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -37,6 +41,12 @@ export default function Home() {
                 Embedded wallet: {embeddedWallet.address}
               </p>
             )}
+            <Link
+              href="/send"
+              className="flex h-12 w-full items-center justify-center rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            >
+              Send ETH
+            </Link>
             <button
               onClick={logout}
               className="text-sm text-zinc-500 underline"
