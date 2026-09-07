@@ -1,4 +1,5 @@
 import type { DecodedCall } from "./decode";
+import type { SpenderRisk } from "./graphSignal";
 
 export type Verdict = "ALLOW" | "DENY" | "MANUAL_REVIEW";
 
@@ -7,7 +8,9 @@ export interface VerdictResult {
   reasons: string[];
 }
 
-export function computeVerdict(decoded: DecodedCall): VerdictResult {
+const REPEAT_SPENDER_WALLET_THRESHOLD = 2;
+
+export function computeVerdict(decoded: DecodedCall, spenderRisk?: SpenderRisk | null): VerdictResult {
   if (decoded.kind === "unknown") {
     return {
       verdict: "MANUAL_REVIEW",
@@ -32,6 +35,13 @@ export function computeVerdict(decoded: DecodedCall): VerdictResult {
   const reasons: string[] = [
     "This grants standing, repeatable access rather than a one-time transfer.",
   ];
+
+  if (spenderRisk && spenderRisk.distinctWallets >= REPEAT_SPENDER_WALLET_THRESHOLD) {
+    reasons.push(
+      `${spenderRisk.distinctWallets} other wallets have granted this same address standing approvals — a known drainer pattern.`,
+    );
+    return { verdict: "DENY", reasons };
+  }
 
   if (decoded.unlimitedAmount) {
     reasons.push("The amount is effectively unlimited.");

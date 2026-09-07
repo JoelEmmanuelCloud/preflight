@@ -47,6 +47,16 @@ function isEffectivelyUnlimited(amount: bigint): boolean {
   return amount >= UNLIMITED_THRESHOLD;
 }
 
+export function getSpenderAddress(decoded: DecodedCall): `0x${string}` | null {
+  if (decoded.kind === "approve" || decoded.kind === "permit") {
+    return decoded.spender;
+  }
+  if (decoded.kind === "setApprovalForAll" && decoded.approved) {
+    return decoded.operator;
+  }
+  return null;
+}
+
 export function decodeCalldata(data: Hex, valueEth: string): DecodedCall {
   if (!data || data === "0x") {
     return {

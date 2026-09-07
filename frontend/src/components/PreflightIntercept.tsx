@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSendTransaction } from "@privy-io/react-auth";
 import { parseEther } from "viem";
-import { decodeCalldata } from "@/lib/preflight/decode";
+import { decodeCalldata, getSpenderAddress } from "@/lib/preflight/decode";
 import { computeVerdict, type Verdict } from "@/lib/preflight/verdict";
+import { fetchSpenderRisk, type SpenderRisk } from "@/lib/preflight/graphSignal";
 
 export interface PendingTransaction {
   to: `0x${string}`;
@@ -52,7 +53,32 @@ export function PreflightIntercept({
     () => decodeCalldata(pending.data ?? "0x", pending.valueEth),
     [pending.data, pending.valueEth],
   );
-  const { verdict, reasons } = useMemo(() => computeVerdict(decoded), [decoded]);
+  const spender = useMemo(() => getSpenderAddress(decoded), [decoded]);
+
+  const [fetchedRisk, setFetchedRisk] = useState<{ spender: string; risk: SpenderRisk | null } | null>(null);
+
+  useEffect(() => {
+    if (!spender) return;
+    let cancelled = false;
+    fetchSpenderRisk(spender)
+      .then((risk) => {
+        if (!cancelled) setFetchedRisk({ spender, risk });
+      })
+      .catch(() => {
+        if (!cancelled) setFetchedRisk({ spender, risk: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [spender]);
+
+  const spenderRisk = spender && fetchedRisk?.spender === spender ? fetchedRisk.risk : null;
+  const checkingHistory = spender !== null && fetchedRisk?.spender !== spender;
+
+  const { verdict, reasons } = useMemo(
+    () => computeVerdict(decoded, spenderRisk),
+    [decoded, spenderRisk],
+  );
   const style = VERDICT_STYLES[verdict];
   const approveIsPrimary = verdict === "ALLOW";
 
@@ -76,6 +102,10 @@ export function PreflightIntercept({
   return (
     <div className="flex w-full flex-col gap-5 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
       <p className="text-lg font-medium text-zinc-50">{decoded.sentence}</p>
+
+      {checkingHistory && (
+        <p className="text-sm text-zinc-500">Checking this transaction against on-chain history...</p>
+      )}
 
       <div className={`rounded-xl border p-4 ${style.box}`}>
         <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>
