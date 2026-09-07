@@ -1,0 +1,16 @@
+type Wallet @entity(immutable: true) {
+  id: ID!
+  firstSeenAt: BigInt!
+  approvals: [Approval!]! @derivedFrom(field: "owner")
+}
+
+type Approval @entity(immutable: true) {
+  id: ID!
+  owner: Wallet!
+  spender: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  unlimited: Boolean!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
