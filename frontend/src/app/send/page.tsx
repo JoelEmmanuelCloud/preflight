@@ -10,8 +10,9 @@ import {
 } from "@/components/PreflightIntercept";
 import { APPROVE_ABI, PERMIT_ABI, SET_APPROVAL_FOR_ALL_ABI } from "@/lib/preflight/abis";
 
-const DEMO_SPENDER = "0x000000000000000000000000000000000000dEaD" as const;
-const DEMO_TARGET = "0x000000000000000000000000000000000000dEaD" as const;
+const DEMO_TOKEN = "0x4311FaE3BE9F813575299A983Eb6FE0F52438ffd" as const;
+const DEMO_DRAINER = "0x1B59495FaD2a1FB7cF4605bc62A53aadD9cA72e7" as const;
+const DEMO_CLEAN_SPENDER = "0x000000000000000000000000000000000000dEaD" as const;
 
 type Scenario =
   | "transfer"
@@ -42,61 +43,61 @@ function buildPending(
 
   if (scenario === "approve-bounded") {
     return {
-      to: DEMO_TARGET,
+      to: DEMO_TOKEN,
       valueEth: "0",
       data: encodeFunctionData({
         abi: APPROVE_ABI,
         functionName: "approve",
-        args: [DEMO_SPENDER, parseUnits("100", 18)],
+        args: [DEMO_CLEAN_SPENDER, parseUnits("100", 18)],
       }),
     };
   }
 
   if (scenario === "approve-unlimited") {
     return {
-      to: DEMO_TARGET,
+      to: DEMO_TOKEN,
       valueEth: "0",
       data: encodeFunctionData({
         abi: APPROVE_ABI,
         functionName: "approve",
-        args: [DEMO_SPENDER, maxUint256],
+        args: [DEMO_DRAINER, maxUint256],
       }),
     };
   }
 
   if (scenario === "revoke-all") {
     return {
-      to: DEMO_TARGET,
+      to: DEMO_TOKEN,
       valueEth: "0",
       data: encodeFunctionData({
         abi: SET_APPROVAL_FOR_ALL_ABI,
         functionName: "setApprovalForAll",
-        args: [DEMO_SPENDER, false],
+        args: [DEMO_DRAINER, false],
       }),
     };
   }
 
   if (scenario === "grant-all") {
     return {
-      to: DEMO_TARGET,
+      to: DEMO_TOKEN,
       valueEth: "0",
       data: encodeFunctionData({
         abi: SET_APPROVAL_FOR_ALL_ABI,
         functionName: "setApprovalForAll",
-        args: [DEMO_SPENDER, true],
+        args: [DEMO_DRAINER, true],
       }),
     };
   }
 
   return {
-    to: DEMO_TARGET,
+    to: DEMO_TOKEN,
     valueEth: "0",
     data: encodeFunctionData({
       abi: PERMIT_ABI,
       functionName: "permit",
       args: [
-        DEMO_SPENDER,
-        DEMO_SPENDER,
+        DEMO_CLEAN_SPENDER,
+        DEMO_DRAINER,
         maxUint256,
         BigInt(Math.floor(Date.now() / 1000) + 3600),
         27,
@@ -209,9 +210,10 @@ export default function SendPage() {
 
             {scenario !== "transfer" && (
               <p className="text-xs text-zinc-500">
-                Demo calldata targeting a placeholder address — no live token
-                contract exists until Day 4. This exercises the decoder and
-                verdict logic only.
+                Demo calldata targeting the real DemoToken/DrainerDemo
+                contracts deployed to Sepolia — the unlimited/grant-all
+                scenarios target an address with real seeded approval
+                history on the deployed subgraph.
               </p>
             )}
 
