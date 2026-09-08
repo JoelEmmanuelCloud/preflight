@@ -16,6 +16,13 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.get("/api/spender-risk", async (req, res) => {
+  const expectedToken = process.env.PREFLIGHT_API_TOKEN;
+  const authHeader = req.headers.authorization;
+  if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+    res.status(401).json({ error: "missing or invalid Authorization header" });
+    return;
+  }
+
   const spender = req.query.spender;
   if (typeof spender !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(spender)) {
     res.status(400).json({ error: "spender must be a valid address" });
