@@ -1,0 +1,8 @@
+{
+  "schedule": "0 */1 * * * *",
+  "spenderRiskUrl": "http://localhost:4000/api/spender-risk",
+  "spender": "0x1B59495FaD2a1FB7cF4605bc62A53aadD9cA72e7",
+  "standingAccess": true,
+  "unlimitedAmount": true,
+  "secretId": "API_TOKEN"
+}

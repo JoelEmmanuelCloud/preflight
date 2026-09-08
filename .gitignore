@@ -230,3 +230,6 @@ contracts/cache/
 # Graph CLI
 subgraph/build/
 subgraph/generated/
+
+# CRE CLI
+.cre_build_tmp.js

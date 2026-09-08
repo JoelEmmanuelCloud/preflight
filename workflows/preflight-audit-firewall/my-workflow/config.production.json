@@ -1,0 +1,8 @@
+{
+  "schedule": "0 */5 * * * *",
+  "spenderRiskUrl": "https://YOUR_DEPLOYED_BACKEND/api/spender-risk",
+  "spender": "0x0000000000000000000000000000000000dEaD",
+  "standingAccess": true,
+  "unlimitedAmount": true,
+  "secretId": "API_TOKEN"
+}
