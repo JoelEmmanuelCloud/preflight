@@ -104,9 +104,9 @@ cre workflow simulate my-workflow --target staging-settings --non-interactive --
 
 ## AI tools used
 
-This project was built with Claude Code (Anthropic) as an active pair throughout the five-day build window, after kickoff. All application code was written by Claude Code under direction — scoping each day's tasks, reviewing and approving consequential actions (account changes, live deployments, form submissions), and verifying results against the real, running system rather than accepting untested output.
+This project was built with Claude Code (Anthropic) as an active pair throughout the five-day build window, after kickoff. Every file under `frontend/`, `backend/`, `contracts/`, `subgraph/`, and `workflows/preflight-audit-firewall/` was written by Claude Code under direction — scoping each day's tasks, reviewing and approving consequential actions (account changes, live deployments, secret handling, form submissions), and verifying results against the real, running system (live Sepolia transactions, live subgraph queries, live `cre workflow simulate` runs, a live Privy policy denial) rather than accepting untested output.
 
-A public build runbook tracked what was planned versus what actually happened each day, including verbatim prompts, in-session findings, and course corrections (wrong assumptions about third-party APIs, browser-automation limitations, credential-handling mistakes and their fixes). That runbook and the architecture research behind it are the planning artifacts referenced by ETHGlobal's AI tools disclosure requirement.
+[`docs/BUILD_LOG.md`](docs/BUILD_LOG.md) contains the verbatim prompt history, day by day, kept in this repository per ETHGlobal's AI tools disclosure rule. The full interactive build runbook — with per-task verification state and in-session findings — is a linked planning artifact: https://claude.ai/code/artifact/a892742b-d4cc-400f-9d4a-46dd2c96a78a
 
 Commit messages and this README were written without AI attribution by design — the disclosure lives here, not scattered across git history.
 
