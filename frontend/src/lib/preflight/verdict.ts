@@ -10,7 +10,11 @@ export interface VerdictResult {
 
 const REPEAT_SPENDER_WALLET_THRESHOLD = 2;
 
-export function computeVerdict(decoded: DecodedCall, spenderRisk?: SpenderRisk | null): VerdictResult {
+export function computeVerdict(
+  decoded: DecodedCall,
+  spenderRisk?: SpenderRisk | null,
+  spenderRiskUnavailable?: boolean,
+): VerdictResult {
   if (decoded.kind === "unknown") {
     return {
       verdict: "MANUAL_REVIEW",
@@ -46,6 +50,13 @@ export function computeVerdict(decoded: DecodedCall, spenderRisk?: SpenderRisk |
   if (decoded.unlimitedAmount) {
     reasons.push("The amount is effectively unlimited.");
     return { verdict: "DENY", reasons };
+  }
+
+  if (spenderRiskUnavailable) {
+    reasons.push(
+      "Could not check this address against on-chain approval history — defaulting to manual review rather than assuming it's clean.",
+    );
+    return { verdict: "MANUAL_REVIEW", reasons };
   }
 
   reasons.push("The amount is bounded, but standing access still needs a human decision.");

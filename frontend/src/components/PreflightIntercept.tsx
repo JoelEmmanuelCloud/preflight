@@ -55,29 +55,33 @@ export function PreflightIntercept({
   );
   const spender = useMemo(() => getSpenderAddress(decoded), [decoded]);
 
-  const [fetchedRisk, setFetchedRisk] = useState<{ spender: string; risk: SpenderRisk | null } | null>(null);
+  const [fetchedRisk, setFetchedRisk] = useState<{ spender: string; risk: SpenderRisk | null; failed: boolean } | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!spender) return;
     let cancelled = false;
     fetchSpenderRisk(spender)
       .then((risk) => {
-        if (!cancelled) setFetchedRisk({ spender, risk });
+        if (!cancelled) setFetchedRisk({ spender, risk, failed: false });
       })
       .catch(() => {
-        if (!cancelled) setFetchedRisk({ spender, risk: null });
+        if (!cancelled) setFetchedRisk({ spender, risk: null, failed: true });
       });
     return () => {
       cancelled = true;
     };
   }, [spender]);
 
-  const spenderRisk = spender && fetchedRisk?.spender === spender ? fetchedRisk.risk : null;
+  const riskForSpender = spender && fetchedRisk?.spender === spender ? fetchedRisk : null;
+  const spenderRisk = riskForSpender?.risk ?? null;
+  const spenderRiskUnavailable = riskForSpender?.failed ?? false;
   const checkingHistory = spender !== null && fetchedRisk?.spender !== spender;
 
   const { verdict, reasons } = useMemo(
-    () => computeVerdict(decoded, spenderRisk),
-    [decoded, spenderRisk],
+    () => computeVerdict(decoded, spenderRisk, spenderRiskUnavailable),
+    [decoded, spenderRisk, spenderRiskUnavailable],
   );
   const style = VERDICT_STYLES[verdict];
   const approveIsPrimary = verdict === "ALLOW";
