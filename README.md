@@ -4,6 +4,13 @@ A pre-sign transaction firewall for embedded wallets. Before a wallet signature 
 
 Built for ETHOnline 2026.
 
+## Live demo
+
+Frontend: https://preflight-frontend-342051283692.us-central1.run.app
+Backend: https://preflight-backend-342051283692.us-central1.run.app
+
+Both run on Cloud Run and can cold-start after idling — if the first load feels slow, that's a container waking up, not a bug.
+
 ## The problem
 
 Approval and permit signatures are the vector behind most wallet-drain attacks, and the wallet's own signing prompt shows raw calldata, not what the call actually authorizes. A user has no way to tell "spend 100 USDC" apart from "spend an unlimited amount of USDC, forever, on behalf of an address five other wallets have already been drained by."
